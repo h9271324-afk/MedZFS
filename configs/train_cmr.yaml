@@ -1,0 +1,30 @@
+# =============================================================================
+# Cardiac MRI (MS-CMRSeg) Training Configuration
+# =============================================================================
+# Overrides base config.yaml for CMR dataset.
+# Structures: LV Myocardium, LV Blood Pool, Right Ventricle
+# =============================================================================
+
+_base_: "config.yaml"
+
+data:
+  dataset_name: "cmr"
+  data_dir: "./data/processed/cmr"
+  modality: "CMR"
+  classes:
+    - name: "lv_myo"
+      label: 1
+      description: "The left ventricular myocardium, a thick muscular wall forming a ring-shaped structure around the left ventricular cavity, appearing as intermediate signal intensity on cardiac MRI."
+    - name: "lv_bp"
+      label: 2
+      description: "The left ventricular blood pool, the bright cavity enclosed by the left ventricular myocardium, showing high signal intensity on cine cardiac MRI due to flowing blood."
+    - name: "rv"
+      label: 3
+      description: "The right ventricle, a crescent-shaped chamber with a thinner wall than the left ventricle, wrapping around the interventricular septum on short-axis cardiac MRI views."
+
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+
+logging:
+  experiment_name: "medzfs_cmr"

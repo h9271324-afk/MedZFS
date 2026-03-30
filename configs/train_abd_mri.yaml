@@ -1,0 +1,34 @@
+# =============================================================================
+# Abdomen MRI (CHAOS Challenge) Training Configuration
+# =============================================================================
+# Overrides base config.yaml for Abd-MRI dataset.
+# Organs: Liver, Right Kidney, Left Kidney, Spleen
+# =============================================================================
+
+_base_: "config.yaml"
+
+data:
+  dataset_name: "abd_mri"
+  data_dir: "./data/processed/abd_mri"
+  modality: "MRI"
+  classes:
+    - name: "liver"
+      label: 1
+      description: "A large, wedge-shaped organ located in the upper right abdomen beneath the diaphragm, with a smooth capsular surface and relatively homogeneous parenchyma on MRI."
+    - name: "right_kidney"
+      label: 2
+      description: "A bean-shaped retroperitoneal organ on the right side of the abdomen, slightly lower than the left kidney, with distinct cortex and medulla visible on MRI."
+    - name: "left_kidney"
+      label: 3
+      description: "A bean-shaped retroperitoneal organ on the left side of the abdomen, located near the spleen, with distinct cortex and medulla visible on MRI."
+    - name: "spleen"
+      label: 4
+      description: "An ovoid organ in the left upper quadrant of the abdomen, posterior to the stomach and superior to the left kidney, with homogeneous signal on MRI."
+
+  # Dataset splits
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+
+logging:
+  experiment_name: "medzfs_abd_mri"

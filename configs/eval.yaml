@@ -1,0 +1,31 @@
+# =============================================================================
+# Evaluation Configuration
+# =============================================================================
+# Settings for evaluating trained MedZFS models across all datasets and
+# shot settings.
+# =============================================================================
+
+_base_: "config.yaml"
+
+evaluation:
+  checkpoint: "./checkpoints/best_model.pth"
+  metrics: ["dice", "hausdorff", "acr"]
+  num_episodes: 600
+  shots: [0, 1, 5, 10]
+  save_predictions: true
+  visualize: true
+  output_dir: "./results"
+
+  datasets:
+    - name: "abd_mri"
+      config: "configs/train_abd_mri.yaml"
+    - name: "abd_ct"
+      config: "configs/train_abd_ct.yaml"
+    - name: "cmr"
+      config: "configs/train_cmr.yaml"
+
+  visualization:
+    save_overlay: true
+    save_error_map: true
+    num_samples: 10
+    cmap: "jet"

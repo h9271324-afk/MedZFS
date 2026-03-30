@@ -1,0 +1,146 @@
+# =============================================================================
+# MedZFS Base Configuration
+# =============================================================================
+# This file contains the default hyperparameters and settings for MedZFS.
+# Dataset-specific configs override these defaults.
+# =============================================================================
+
+# --- Model Architecture ---
+model:
+  name: "MedZFS"
+  feature_dim: 512                    # Dimension of the shared feature space (d)
+  num_hallucinated_prototypes: 16     # Number of prototypes sampled (M)
+
+  visual_encoder:
+    backbone: "resnet101"             # ResNet-101 backbone
+    pretrained: "biomedclip"          # Initialize from BiomedCLIP weights
+    feature_blocks: [2, 3, 4]         # Multi-scale feature extraction blocks
+    freeze_bn: true                   # Freeze batch normalization layers
+
+  text_encoder:
+    model_name: "emilyalsentzer/Bio_ClinicalBERT"
+    max_length: 128                   # Maximum token length for text descriptions
+    freeze: true                      # Freeze text encoder during early training
+    unfreeze_at_stage: 3              # Unfreeze at stage 3
+
+  graph_network:
+    num_layers: 4                     # Number of graph convolution layers (L)
+    hidden_dim: 512                   # Hidden dimension of graph layers
+    num_relation_types: 4             # spatial, hierarchical, functional, pathological
+    dropout: 0.1                      # Dropout rate in graph layers
+    residual: true                    # Use residual connections
+
+  hallucination:
+    num_samples: 16                   # Number of prototype samples (M)
+    min_variance: 0.01                # Minimum variance for stability
+    max_variance: 2.0                 # Maximum variance clamp
+    temperature: 0.1                  # Temperature for similarity computation
+
+  fusion:
+    num_gnn_layers: 2                 # GNN layers in fusion module
+    attention_heads: 8                # Number of attention heads
+    dropout: 0.1                      # Dropout in fusion
+
+  prototype_mining:
+    num_hard_prototypes: 8            # Number of hard prototypes per support
+    hard_threshold: 0.5               # Threshold for identifying hard regions
+    subsample_ratio: 0.5              # Ratio of hard pixels to sample
+
+# --- Loss Function ---
+loss:
+  segmentation:
+    bce_weight: 0.5                   # Weight for BCE loss
+    dice_weight: 0.5                  # Weight for Dice loss
+  lambda_graph: 0.1                   # λ₁: Graph consistency loss weight
+  lambda_align: 0.05                  # λ₂: Cross-modal alignment loss weight
+  lambda_boundary: 0.1                # λ₃: Boundary loss weight
+
+# --- Training ---
+training:
+  seed: 42                            # Random seed for reproducibility
+  num_epochs: 100                     # Total epochs (stage 3)
+  batch_size: 4                       # Batch size per GPU
+  num_workers: 8                      # DataLoader workers
+
+  # Three-stage training schedule
+  stages:
+    stage1:
+      name: "zero_shot_pretraining"
+      epochs: 50
+      lr: 1.0e-4
+      optimizer: "adamw"
+      weight_decay: 1.0e-4
+      warmup_epochs: 5
+      freeze_text_encoder: true
+      description: "Hallucination + graph alignment on image-text pairs"
+
+    stage2:
+      name: "episodic_meta_learning"
+      epochs: 30
+      lr: 1.0e-3
+      optimizer: "adamw"
+      weight_decay: 1.0e-4
+      warmup_epochs: 3
+      freeze_text_encoder: true
+      description: "Hard prototype mining with episodic training"
+
+    stage3:
+      name: "joint_bilevel_optimization"
+      epochs: 100
+      lr: 5.0e-5
+      optimizer: "adamw"
+      weight_decay: 1.0e-5
+      warmup_epochs: 10
+      freeze_text_encoder: false
+      gradient_surgery: true
+      description: "Joint optimization of all pathways"
+
+  mixed_precision: true               # Use AMP for mixed-precision training
+  gradient_clip: 1.0                  # Gradient clipping norm
+  distributed: false                  # Multi-GPU training
+
+# --- Data ---
+data:
+  image_size: [256, 256]              # Input image size (H, W)
+  target_spacing: [1.0, 1.0, 1.0]    # Uniform voxel spacing
+  normalize: true                     # Apply intensity normalization
+  num_episodes: 1000                  # Episodes per epoch
+  shots: [0, 1, 5, 10]               # Support set sizes for evaluation
+
+  augmentation:
+    enabled: true
+    elastic_deformation:
+      alpha: 200
+      sigma: 20
+      probability: 0.5
+    intensity_jitter:
+      brightness: 0.2
+      contrast: 0.2
+      probability: 0.5
+    random_flip:
+      horizontal: true
+      vertical: false                 # Preserve anatomical orientation
+      probability: 0.5
+    random_rotation:
+      degrees: 15
+      probability: 0.3
+
+# --- Evaluation ---
+evaluation:
+  metrics: ["dice", "hausdorff", "acr"]   # Metrics to compute
+  num_episodes: 600                        # Evaluation episodes
+  save_predictions: false                  # Save prediction masks
+  visualize: false                         # Generate visualization plots
+
+# --- Logging ---
+logging:
+  backend: "tensorboard"              # "tensorboard" or "wandb"
+  log_dir: "./logs"
+  experiment_name: "medzfs"
+  log_interval: 50                    # Log every N iterations
+  save_interval: 10                   # Save checkpoint every N epochs
+  checkpoint_dir: "./checkpoints"
+
+  wandb:
+    project: "medzfs"
+    entity: "anonymous"

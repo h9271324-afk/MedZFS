@@ -1,0 +1,33 @@
+# =============================================================================
+# Abdomen CT (Synapse Multi-Organ) Training Configuration
+# =============================================================================
+# Overrides base config.yaml for Abd-CT dataset.
+# Organs: Spleen, Right Kidney, Left Kidney, Liver
+# =============================================================================
+
+_base_: "config.yaml"
+
+data:
+  dataset_name: "abd_ct"
+  data_dir: "./data/processed/abd_ct"
+  modality: "CT"
+  classes:
+    - name: "spleen"
+      label: 1
+      description: "An ovoid organ in the left upper quadrant, posterior to the stomach, displaying characteristic Hounsfield units on CT with homogeneous enhancement."
+    - name: "right_kidney"
+      label: 2
+      description: "A bean-shaped retroperitoneal organ on the right side, showing cortical enhancement on contrast CT with a distinct collecting system."
+    - name: "left_kidney"
+      label: 3
+      description: "A bean-shaped retroperitoneal organ on the left side, adjacent to the spleen, showing cortical enhancement on contrast CT with a distinct collecting system."
+    - name: "liver"
+      label: 4
+      description: "The largest solid organ, occupying the right upper abdomen, with a dual blood supply visible on contrast CT and relatively uniform parenchymal density."
+
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+
+logging:
+  experiment_name: "medzfs_abd_ct"
