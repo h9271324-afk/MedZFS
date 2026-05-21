@@ -343,21 +343,6 @@ python -m inference.predict \
 
 ---
 
-## Citation
-
-If you find this work useful, please cite:
-
-```bibtex
-@inproceedings{anonymous2026medzfs,
-    title={MedZFS: Hallucinating Anatomical Prototypes for Unified Zero-to-Few-Shot Medical Image Segmentation},
-    author={Anonymous},
-    booktitle={International Conference on Machine Learning (ICML)},
-    year={2026}
-}
-```
-
----
-
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
