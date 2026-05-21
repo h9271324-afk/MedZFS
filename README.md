@@ -4,10 +4,9 @@
   <img src="https://img.shields.io/badge/PyTorch-2.0+-ee4c2c?logo=pytorch&logoColor=white" alt="PyTorch">
   <img src="https://img.shields.io/badge/Python-3.9+-blue?logo=python&logoColor=white" alt="Python">
   <img src="https://img.shields.io/badge/License-MIT-green" alt="License">
-  <img src="https://img.shields.io/badge/Conference-ICML%202026-purple" alt="ICML">
 </p>
 
-> This repository implements the method proposed in the accompanying research paper submitted to ICML 2026.
+> This repository implements the method proposed in the accompanying research paper.
 
 ---
 
